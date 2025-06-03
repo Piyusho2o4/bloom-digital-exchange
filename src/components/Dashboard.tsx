@@ -1,8 +1,10 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
 import { MarketOverview } from './MarketOverview';
-import { TradingChart } from './TradingChart';
+import { LiveTradingChart } from './LiveTradingChart';
+import { TradingForm } from './TradingForm';
 import { QuickStats } from './QuickStats';
 
 interface DashboardProps {
@@ -10,6 +12,9 @@ interface DashboardProps {
 }
 
 export function Dashboard({ isDemoAccount }: DashboardProps) {
+  const [selectedSymbol, setSelectedSymbol] = useState('BTC/USD');
+  const [currentPrice, setCurrentPrice] = useState(43250);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -25,11 +30,19 @@ export function Dashboard({ isDemoAccount }: DashboardProps) {
 
       <QuickStats isDemoAccount={isDemoAccount} />
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <TradingChart />
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="xl:col-span-3">
+          <LiveTradingChart 
+            symbol={selectedSymbol} 
+            onSymbolSelect={setSelectedSymbol}
+          />
         </div>
         <div className="space-y-6">
+          <TradingForm 
+            symbol={selectedSymbol}
+            currentPrice={currentPrice}
+            isDemoAccount={isDemoAccount}
+          />
           <MarketOverview />
         </div>
       </div>
