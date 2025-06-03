@@ -1,21 +1,34 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { TrendingUp, TrendingDown, BarChart3, Plus, Minus } from 'lucide-react';
+import { TradingForm } from './TradingForm';
 
 interface PortfolioProps {
   isDemoAccount: boolean;
 }
 
 const portfolioData = [
-  { symbol: 'BTC', name: 'Bitcoin', quantity: '0.5', avgPrice: '$41,200', currentPrice: '$43,250', pnl: '+$1,025', pnlPercent: '+2.49%', positive: true },
-  { symbol: 'ETH', name: 'Ethereum', quantity: '2.5', avgPrice: '$2,650', currentPrice: '$2,680', pnl: '+$75', pnlPercent: '+1.13%', positive: true },
-  { symbol: 'AAPL', name: 'Apple Inc.', quantity: '10', avgPrice: '$178.50', currentPrice: '$175.25', pnl: '-$32.50', pnlPercent: '-1.82%', positive: false },
-  { symbol: 'TSLA', name: 'Tesla Inc.', quantity: '5', avgPrice: '$240.00', currentPrice: '$248.90', pnl: '+$44.50', pnlPercent: '+3.71%', positive: true },
+  { symbol: 'BTC', name: 'Bitcoin', quantity: '0.5', avgPrice: '$41,200', currentPrice: '$43,250', pnl: '+$1,025', pnlPercent: '+2.49%', positive: true, numericPrice: 43250 },
+  { symbol: 'ETH', name: 'Ethereum', quantity: '2.5', avgPrice: '$2,650', currentPrice: '$2,680', pnl: '+$75', pnlPercent: '+1.13%', positive: true, numericPrice: 2680 },
+  { symbol: 'AAPL', name: 'Apple Inc.', quantity: '10', avgPrice: '$178.50', currentPrice: '$175.25', pnl: '-$32.50', pnlPercent: '-1.82%', positive: false, numericPrice: 175.25 },
+  { symbol: 'TSLA', name: 'Tesla Inc.', quantity: '5', avgPrice: '$240.00', currentPrice: '$248.90', pnl: '+$44.50', pnlPercent: '+3.71%', positive: true, numericPrice: 248.90 },
 ];
 
 export function Portfolio({ isDemoAccount }: PortfolioProps) {
+  const [selectedStock, setSelectedStock] = useState<any>(null);
   const totalValue = isDemoAccount ? '$50,000' : '$12,345';
   const totalPnl = isDemoAccount ? '+$1,250' : '+$302';
+
+  const handleQuickBuy = (stock: any) => {
+    console.log(`Quick buy for ${stock.symbol} at ${stock.currentPrice}`);
+  };
+
+  const handleQuickSell = (stock: any) => {
+    console.log(`Quick sell for ${stock.symbol} at ${stock.currentPrice}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -50,7 +63,7 @@ export function Portfolio({ isDemoAccount }: PortfolioProps) {
         <CardContent>
           <div className="space-y-4">
             {portfolioData.map((holding, index) => (
-              <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors">
+              <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer group">
                 <div className="flex items-center space-x-4">
                   <div>
                     <div className="font-semibold text-lg">{holding.symbol}</div>
@@ -79,6 +92,57 @@ export function Portfolio({ isDemoAccount }: PortfolioProps) {
                       {holding.pnlPercent}
                     </div>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickBuy(holding);
+                    }}
+                    className="bg-profit hover:bg-profit/90 text-white"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Buy
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickSell(holding);
+                    }}
+                    className="bg-loss hover:bg-loss/90 text-white"
+                  >
+                    <Minus className="h-3 w-3 mr-1" />
+                    Sell
+                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedStock(holding);
+                        }}
+                      >
+                        Trade
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Trade {holding.symbol}</DialogTitle>
+                      </DialogHeader>
+                      <TradingForm 
+                        symbol={holding.symbol}
+                        currentPrice={holding.numericPrice}
+                        isDemoAccount={isDemoAccount}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             ))}
